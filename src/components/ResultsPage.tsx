@@ -1,11 +1,10 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RotateCcw, Target, TrendingUp, AlertCircle, CheckCircle2, Clock, Shield, BarChart3, Settings, Eye, Users } from 'lucide-react';
+import { RotateCcw, Target, TrendingUp, AlertCircle, CheckCircle2, Clock, Shield, BarChart3, Settings, Eye, Users, Copy, Download, Code } from 'lucide-react';
 
 interface ResultsPageProps {
   responses: {
@@ -19,6 +18,7 @@ interface ResultsPageProps {
 }
 
 const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
+  const [yamlFormat, setYamlFormat] = useState<'openslo' | 'sloth'>('openslo');
   
   // SLI 推薦邏輯
   const generateSLIRecommendations = () => {
@@ -151,6 +151,149 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
     return recommendations;
   };
 
+  // 生成 OpenSLO YAML 配置
+  const generateOpenSLOYaml = () => {
+    const sloTargets = generateSLOTargets();
+    
+    const yamlContent = sloTargets.map((slo, index) => {
+      const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const serviceName = responses.serviceType[0] || 'service';
+      
+      return `apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: ${sloName}-slo
+  displayName: ${slo.name}
+spec:
+  description: "${slo.description}"
+  service: ${serviceName}
+  indicator:
+    metadata:
+      name: ${sloName}-sli
+      displayName: ${slo.name} SLI
+    spec:
+      ratioMetric:
+        counter: true
+        good:
+          source: prometheus
+          queryType: promql
+          query: |
+            ${getSLIQuery(slo)}
+        total:
+          source: prometheus
+          queryType: promql
+          query: |
+            ${getTotalQuery(slo)}
+  objectives:
+    - displayName: ${slo.measurementWindow} Target
+      target: ${parseFloat(slo.sloTarget.replace('%', '')) / 100}
+      timeWindow:
+        - duration: ${slo.measurementWindow === '30天' ? '30d' : '7d'}
+          isRolling: true
+  alerting:
+    name: ${sloName}-alert
+    annotations:
+      summary: "SLO ${slo.name} is at risk"
+      description: "The error budget for ${slo.name} is being consumed too quickly"
+---`;
+    }).join('\n');
+
+    return yamlContent;
+  };
+
+  // 生成 Sloth YAML 配置
+  const generateSlothYaml = () => {
+    const sloTargets = generateSLOTargets();
+    const serviceName = responses.serviceType[0] || 'service';
+    
+    const yamlContent = `version: "prometheus/v1"
+service: "${serviceName}"
+labels:
+  team: "sre"
+  environment: "production"
+slos:
+${sloTargets.map((slo, index) => {
+  const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const objective = parseFloat(slo.sloTarget.replace('%', '')) / 100;
+  
+  return `  - name: "${sloName}"
+    description: "${slo.description}"
+    objective: ${objective}
+    labels:
+      category: "${slo.priority}"
+    sli:
+      events:
+        error_query: |
+          ${getErrorQuery(slo)}
+        total_query: |
+          ${getTotalQuery(slo)}
+    alerting:
+      name: "${sloName}"
+      labels:
+        severity: "warning"
+      annotations:
+        summary: "SLO ${slo.name} burn rate is too high"
+        runbook: "https://runbook.example.com/${sloName}"
+      page_alert:
+        labels:
+          severity: "critical"
+        annotations:
+          summary: "SLO ${slo.name} burn rate is critical"`;
+}).join('\n')}`;
+
+    return yamlContent;
+  };
+
+  // 根據 SLO 類型生成對應的 Prometheus 查詢
+  const getSLIQuery = (slo: any) => {
+    if (slo.name.includes('可用性')) {
+      return 'sum(rate(http_requests_total{code!~"5.."}[5m]))';
+    } else if (slo.name.includes('響應時間')) {
+      return 'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))';
+    } else if (slo.name.includes('數據準確性')) {
+      return 'sum(rate(data_validation_success_total[5m]))';
+    } else if (slo.name.includes('吞吐量')) {
+      return 'sum(rate(http_requests_total[5m]))';
+    } else {
+      return 'sum(rate(service_requests_success_total[5m]))';
+    }
+  };
+
+  const getTotalQuery = (slo: any) => {
+    if (slo.name.includes('響應時間')) {
+      return 'sum(rate(http_request_duration_seconds_count[5m]))';
+    } else {
+      return 'sum(rate(http_requests_total[5m]))';
+    }
+  };
+
+  const getErrorQuery = (slo: any) => {
+    if (slo.name.includes('可用性')) {
+      return 'sum(rate(http_requests_total{code=~"5.."}[5m]))';
+    } else if (slo.name.includes('響應時間')) {
+      return 'sum(rate(http_request_duration_seconds_bucket{le="0.2"}[5m])) / sum(rate(http_request_duration_seconds_count[5m])) < 0.95';
+    } else {
+      return 'sum(rate(service_requests_error_total[5m]))';
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // 可以添加 toast 通知
+  };
+
+  const downloadYaml = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const sliRecommendations = generateSLIRecommendations();
   const sloTargets = generateSLOTargets();
   const sreRecommendations = generateSRERecommendations();
@@ -210,10 +353,11 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
 
         {/* 詳細報告 */}
         <Tabs defaultValue="sli" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="sli">SLI 指標建議</TabsTrigger>
             <TabsTrigger value="slo">SLO 目標設定</TabsTrigger>
             <TabsTrigger value="implementation">實施指南</TabsTrigger>
+            <TabsTrigger value="yaml">Prometheus 配置</TabsTrigger>
           </TabsList>
           
           <TabsContent value="sli" className="space-y-6">
@@ -335,6 +479,103 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
                   <li>建立定期 SLO 回顧會議機制</li>
                   <li>根據實際運行情況調整 SLO 目標</li>
                 </ol>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="yaml" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="w-5 h-5" />
+                    Prometheus YAML 配置
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={yamlFormat === 'openslo' ? 'default' : 'outline'}
+                      className="cursor-pointer"
+                      onClick={() => setYamlFormat('openslo')}
+                    >
+                      OpenSLO
+                    </Badge>
+                    <Badge 
+                      variant={yamlFormat === 'sloth' ? 'default' : 'outline'}
+                      className="cursor-pointer"
+                      onClick={() => setYamlFormat('sloth')}
+                    >
+                      Sloth
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Alert className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    以下配置基於您的選擇自動生成。請根據實際的 Prometheus 指標名稱和標籤進行調整。
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(yamlFormat === 'openslo' ? generateOpenSLOYaml() : generateSlothYaml())}
+                      className="flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      複製 YAML
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadYaml(
+                        yamlFormat === 'openslo' ? generateOpenSLOYaml() : generateSlothYaml(),
+                        `slo-config-${yamlFormat}.yaml`
+                      )}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      下載 YAML
+                    </Button>
+                  </div>
+
+                  <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                    <pre className="text-green-400 text-sm font-mono whitespace-pre-wrap">
+                      {yamlFormat === 'openslo' ? generateOpenSLOYaml() : generateSlothYaml()}
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <h4 className="font-semibold text-gray-800">部署說明：</h4>
+                  
+                  {yamlFormat === 'openslo' && (
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h5 className="font-medium text-blue-800 mb-2">OpenSLO 部署步驟：</h5>
+                      <ol className="list-decimal list-inside space-y-1 text-blue-700 text-sm">
+                        <li>確保已安裝 OpenSLO Operator</li>
+                        <li>將 YAML 配置保存為 slo-config.yaml</li>
+                        <li>執行：kubectl apply -f slo-config.yaml</li>
+                        <li>檢查 SLO 狀態：kubectl get slo</li>
+                      </ol>
+                    </div>
+                  )}
+
+                  {yamlFormat === 'sloth' && (
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h5 className="font-medium text-green-800 mb-2">Sloth 部署步驟：</h5>
+                      <ol className="list-decimal list-inside space-y-1 text-green-700 text-sm">
+                        <li>安裝 Sloth：go install github.com/slok/sloth/cmd/sloth@latest</li>
+                        <li>將配置保存為 slo-config.yaml</li>
+                        <li>生成 Prometheus 規則：sloth generate -i slo-config.yaml -o prometheus-rules.yaml</li>
+                        <li>將生成的規則加載到 Prometheus</li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
