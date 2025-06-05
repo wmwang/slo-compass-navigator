@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,8 +40,31 @@ const SLONavigator = () => {
     setShowResults(false);
   };
 
+  // Convert answers to the format expected by ResultsPage
+  const convertAnswersToResponses = () => {
+    return {
+      serviceType: answers.serviceType || [],
+      userConcerns: answers.userConcerns || [],
+      businessImpact: answers.businessImpact || [],
+      technicalRequirements: answers.technicalRequirements || [],
+      monitoringCapability: answers.monitoringCapability || []
+    };
+  };
+
+  // Map numeric step to question ID for QuestionnaireStep
+  const getStepId = (step: number): string => {
+    const stepMap = {
+      0: 'serviceType',
+      1: 'userConcerns', 
+      2: 'businessImpact',
+      3: 'technicalRequirements',
+      4: 'monitoringCapability'
+    };
+    return stepMap[step] || 'serviceType';
+  };
+
   if (showResults) {
-    return <ResultsPage answers={answers} onRestart={resetNavigator} />;
+    return <ResultsPage responses={convertAnswersToResponses()} onRestart={resetNavigator} />;
   }
 
   return (
@@ -103,7 +127,7 @@ const SLONavigator = () => {
 
         {/* Current Step */}
         <QuestionnaireStep 
-          step={currentStep}
+          step={getStepId(currentStep)}
           answers={answers}
           onAnswer={handleAnswer}
           onNext={handleNext}
