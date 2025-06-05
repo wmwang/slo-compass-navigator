@@ -95,9 +95,9 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-lg">
+      <Card className="shadow-lg border-slate-200">
         <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">
+          <h2 className="text-xl font-semibold mb-6 text-slate-800">
             {currentData.title}
           </h2>
           
@@ -111,35 +111,35 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
                   key={option.id}
                   className={`cursor-pointer card-hover transition-all duration-200 ${
                     isSelected 
-                      ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-200' 
-                      : 'hover:border-gray-300'
+                      ? 'ring-2 ring-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200' 
+                      : 'hover:border-slate-300 hover:shadow-md'
                   }`}
                   onClick={() => toggleOption(option.id)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <div className={`p-2 rounded-lg ${
-                        isSelected ? 'bg-blue-100' : 'bg-gray-100'
+                        isSelected ? 'bg-blue-100' : 'bg-slate-100'
                       }`}>
                         <IconComponent className={`w-5 h-5 ${
-                          isSelected ? 'text-blue-600' : 'text-gray-600'
+                          isSelected ? 'text-blue-600' : 'text-slate-600'
                         }`} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className={`font-medium ${
-                            isSelected ? 'text-blue-900' : 'text-gray-800'
+                            isSelected ? 'text-blue-900' : 'text-slate-800'
                           }`}>
                             {option.label}
                           </h3>
                           {isSelected && (
-                            <Badge variant="default" className="bg-blue-600">
+                            <Badge variant="default" className="bg-blue-600 hover:bg-blue-700">
                               已選擇
                             </Badge>
                           )}
                         </div>
                         <p className={`text-sm ${
-                          isSelected ? 'text-blue-700' : 'text-gray-600'
+                          isSelected ? 'text-blue-700' : 'text-slate-600'
                         }`}>
                           {option.description}
                         </p>
@@ -152,13 +152,13 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
           </div>
 
           {currentResponses.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <h4 className="font-medium text-green-800 mb-2">已選擇的選項：</h4>
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-emerald-800 mb-2">已選擇的選項：</h4>
               <div className="flex flex-wrap gap-2">
                 {currentResponses.map((responseId: string) => {
                   const option = currentData.options.find(opt => opt.id === responseId);
                   return (
-                    <Badge key={responseId} variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge key={responseId} variant="secondary" className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
                       {option?.label}
                     </Badge>
                   );
@@ -172,7 +172,7 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
               variant="outline"
               onClick={onBack}
               disabled={!canGoBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-slate-300 text-slate-700 hover:bg-slate-50"
             >
               <ArrowLeft className="w-4 h-4" />
               上一步
@@ -181,7 +181,7 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
             <Button
               onClick={onNext}
               disabled={!canProceed}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 shadow-md"
             >
               下一步
               <ArrowRight className="w-4 h-4" />
