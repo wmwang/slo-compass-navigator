@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,15 +56,15 @@ const SLONavigator = () => {
     };
   };
 
-  const getStepId = (step: number): 'serviceType' | 'userConcerns' | 'businessImpact' | 'technicalRequirements' | 'monitoringCapability' => {
-    const stepMap: Record<number, 'serviceType' | 'userConcerns' | 'businessImpact' | 'technicalRequirements' | 'monitoringCapability'> = {
-      0: 'serviceType',
-      1: 'userConcerns', 
-      2: 'businessImpact',
-      3: 'technicalRequirements',
-      4: 'monitoringCapability'
+  const getStepId = (step: number): 'monitoringCapability' | 'serviceType' | 'userConcerns' | 'businessImpact' | 'technicalRequirements' => {
+    const stepMap: Record<number, 'monitoringCapability' | 'serviceType' | 'userConcerns' | 'businessImpact' | 'technicalRequirements'> = {
+      0: 'monitoringCapability', // 用戶身分現在是第一步
+      1: 'serviceType',
+      2: 'userConcerns', 
+      3: 'businessImpact',
+      4: 'technicalRequirements'
     };
-    return stepMap[step] || 'serviceType';
+    return stepMap[step] || 'monitoringCapability';
   };
 
   if (showResults) {

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,16 @@ interface QuestionnaireStepProps {
 }
 
 const questionData = {
+  monitoringCapability: {
+    title: '您的身分為何？（可多選）',
+    options: [
+      { id: 'end_user', label: 'End User', description: '終端使用者，使用產品或服務的人員', icon: Users },
+      { id: 'pm', label: 'PM (Product Manager)', description: '產品經理，負責產品規劃和管理', icon: BarChart3 },
+      { id: 'developer', label: 'Developer', description: '開發人員，負責軟體開發和程式撰寫', icon: Settings },
+      { id: 'ops', label: 'Ops (Operations)', description: '維運人員，負責系統營運和維護', icon: Server },
+      { id: 'sre', label: 'SRE (Site Reliability Engineer)', description: '站點可靠性工程師，專注於系統可靠性', icon: Shield }
+    ]
+  },
   serviceType: {
     title: '請選擇您的服務類型（可多選）',
     options: [
@@ -57,17 +66,6 @@ const questionData = {
       { id: 'high_availability', label: '高可用性要求', description: '99.9%+ 可用性要求', icon: Shield },
       { id: 'scalability', label: '彈性擴展', description: '需要自動伸縮能力', icon: TrendingUp },
       { id: 'real_time', label: '實時性要求', description: '低延遲、實時數據處理', icon: Clock }
-    ]
-  },
-  monitoringCapability: {
-    title: '目前的監控和運維能力如何？（可多選）',
-    options: [
-      { id: 'basic_monitoring', label: '基礎監控', description: '服務器指標、基本告警', icon: Eye },
-      { id: 'apm_tools', label: 'APM 工具', description: 'New Relic、Datadog、Prometheus', icon: BarChart3 },
-      { id: 'log_analysis', label: '日誌分析', description: 'ELK Stack、Splunk', icon: Settings },
-      { id: 'automated_ops', label: '自動化運維', description: 'CI/CD、自動化部署', icon: Server },
-      { id: 'sre_team', label: 'SRE 團隊', description: '專門的可靠性工程團隊', icon: Users },
-      { id: 'on_call', label: '值班體系', description: '24/7 監控和響應機制', icon: AlertTriangle }
     ]
   }
 };
