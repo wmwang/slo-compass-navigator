@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,35 @@ const SLONavigator = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Responses>({});
   const [showResults, setShowResults] = useState(false);
+
+  // SLO 開發週期階段定義
+  const sloPhases = [
+    {
+      phase: 'Identify Stakeholders',
+      description: '識別利害關係人',
+      detail: '確定誰會使用和關心這些 SLO，了解不同角色的需求和期望'
+    },
+    {
+      phase: 'Define Desired Outcomes', 
+      description: '定義期望結果',
+      detail: '明確服務應該提供什麼樣的用戶體驗和業務價值'
+    },
+    {
+      phase: 'Analyze User Journey',
+      description: '分析用戶旅程',
+      detail: '深入了解用戶如何與服務互動，識別關鍵接觸點'
+    },
+    {
+      phase: 'Define Meaningful SLIs + Achievable SLOs',
+      description: '定義有意義的 SLI 和可達成的 SLO',
+      detail: '根據業務影響程度設定合適的服務水準指標和目標'
+    },
+    {
+      phase: 'System Dependencies Check',
+      description: '系統依賴性檢查',
+      detail: '評估技術環境和監控能力，確保 SLO 的可實施性'
+    }
+  ];
 
   const handleAnswer = (questionId: string, answer: string | string[]) => {
     setAnswers(prev => ({
@@ -117,6 +147,28 @@ const SLONavigator = () => {
           </div>
         </div>
 
+        {/* SLO Development Phase Indicator */}
+        <div className="mb-8">
+          <Card className="shadow-lg border-l-4 border-l-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1">
+                  階段 {currentStep + 1}/5
+                </Badge>
+                <h3 className="text-lg font-bold text-blue-900">
+                  {sloPhases[currentStep].phase}
+                </h3>
+              </div>
+              <p className="text-blue-800 font-medium mb-2">
+                {sloPhases[currentStep].description}
+              </p>
+              <p className="text-blue-700 text-sm">
+                {sloPhases[currentStep].detail}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
@@ -135,6 +187,7 @@ const SLONavigator = () => {
         <QuestionnaireStep 
           step={getStepId(currentStep)}
           responses={answers}
+          currentPhase={sloPhases[currentStep]}
           onUpdate={handleAnswer}
           onNext={handleNext}
           onBack={handleBack}

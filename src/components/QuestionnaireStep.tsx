@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,11 @@ import { ArrowLeft, ArrowRight, Globe, Smartphone, Database, Shield, Clock, User
 interface QuestionnaireStepProps {
   step: 'serviceType' | 'userConcerns' | 'businessImpact' | 'technicalRequirements' | 'monitoringCapability';
   responses: any;
+  currentPhase: {
+    phase: string;
+    description: string;
+    detail: string;
+  };
   onUpdate: (stepKey: string, values: string[]) => void;
   onNext: () => void;
   onBack: () => void;
@@ -16,6 +22,7 @@ interface QuestionnaireStepProps {
 const questionData = {
   monitoringCapability: {
     title: '您的身分為何？（可多選）',
+    subtitle: '了解不同角色對 SLO 的需求和關注點',
     options: [
       { id: 'end_user', label: 'End User', description: '終端使用者，使用產品或服務的人員', icon: Users },
       { id: 'pm', label: 'PM (Product Manager)', description: '產品經理，負責產品規劃和管理', icon: BarChart3 },
@@ -26,6 +33,7 @@ const questionData = {
   },
   serviceType: {
     title: '請選擇您的服務類型（可多選）',
+    subtitle: '確定服務特性以制定相應的可靠性目標',
     options: [
       { id: 'web', label: 'Web 應用服務', description: '網站、Web API、前端應用', icon: Globe },
       { id: 'mobile', label: '移動應用服務', description: '手機 App、移動端 API', icon: Smartphone },
@@ -37,6 +45,7 @@ const questionData = {
   },
   userConcerns: {
     title: '用戶最關心服務的哪些方面？（可多選）',
+    subtitle: '識別關鍵的用戶體驗指標和期望',
     options: [
       { id: 'availability', label: '可用性', description: '服務能正常訪問，不出現宕機', icon: Shield },
       { id: 'response_time', label: '響應速度', description: '請求處理速度，頁面加載時間', icon: Clock },
@@ -48,6 +57,7 @@ const questionData = {
   },
   businessImpact: {
     title: '服務中斷對業務的影響程度？（可多選）',
+    subtitle: '評估不同故障情境的業務損失，制定合理的 SLO 目標',
     options: [
       { id: 'revenue_loss', label: '直接收入損失', description: '影響銷售、交易、付費用戶', icon: DollarSign },
       { id: 'customer_churn', label: '客戶流失', description: '用戶體驗差導致客戶離開', icon: Users },
@@ -59,6 +69,7 @@ const questionData = {
   },
   technicalRequirements: {
     title: '您的技術環境和需求是什麼？（可多選）',
+    subtitle: '確保 SLO 指標的監控和實施可行性',
     options: [
       { id: 'cloud_native', label: '雲原生環境', description: 'Kubernetes、Docker、微服務', icon: Server },
       { id: 'legacy_system', label: '傳統系統', description: '單體應用、物理服務器', icon: Database },
@@ -73,6 +84,7 @@ const questionData = {
 const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
   step,
   responses,
+  currentPhase,
   onUpdate,
   onNext,
   onBack,
@@ -95,9 +107,14 @@ const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({
     <div className="space-y-6">
       <Card className="shadow-lg border-slate-200">
         <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-6 text-slate-800">
-            {currentData.title}
-          </h2>
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2 text-blue-900">
+              {currentData.title}
+            </h2>
+            <p className="text-blue-700 text-sm font-medium">
+              {currentData.subtitle}
+            </p>
+          </div>
           
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {currentData.options.map((option) => {
