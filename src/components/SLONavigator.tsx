@@ -29,13 +29,13 @@ const SLONavigator = () => {
     },
     {
       phase: 'Define Desired Outcomes', 
-      description: '定義期望結果',
-      detail: '明確服務應該提供什麼樣的用戶體驗和業務價值'
+      description: '定義服務邊界/使用旅程旅程',
+      detail: '深入了解用戶如何與服務互動，識別關鍵接觸點'
     },
     {
       phase: 'Analyze User Journey',
-      description: '分析用戶旅程',
-      detail: '深入了解用戶如何與服務互動，識別關鍵接觸點'
+      description: '定義期望結果',
+      detail: '明確服務應該提供什麼樣的用戶體驗和業務價值'
     },
     {
       phase: 'Define Meaningful SLIs + Achievable SLOs',
@@ -111,11 +111,11 @@ const SLONavigator = () => {
               <Target className="h-8 w-8" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
-              SLO Navigator
+              SLO Dev Toolkit
             </h1>
           </div>
           <p className="text-xl text-slate-700 max-w-3xl mx-auto font-medium">
-            專業 SLO 開發生命週期指南工具
+            SLO  開發工具包，幫助您輕鬆制定和管理服務水準目標
           </p>
           <p className="text-lg text-slate-600 mt-2">
             透過互動式問卷，協助您確定關鍵 SLI 指標並制定有效的 SLO 策略
@@ -126,8 +126,8 @@ const SLONavigator = () => {
             <Card className="shadow-lg border-slate-200 hover:shadow-xl transition-all duration-300 hover:border-blue-300">
               <CardContent className="p-6 text-center">
                 <Building2 className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-semibold text-slate-800 mb-2">企業級標準</h3>
-                <p className="text-sm text-slate-600">符合業界最佳實踐的 SLO 框架</p>
+                <h3 className="font-semibold text-slate-800 mb-2">SLODLC標準</h3>
+                <p className="text-sm text-slate-600">符合Google SLO白皮書建議流程</p>
               </CardContent>
             </Card>
             <Card className="shadow-lg border-slate-200 hover:shadow-xl transition-all duration-300 hover:border-indigo-300">
@@ -141,7 +141,7 @@ const SLONavigator = () => {
               <CardContent className="p-6 text-center">
                 <BarChart3 className="h-8 w-8 text-purple-600 mx-auto mb-3" />
                 <h3 className="font-semibold text-slate-800 mb-2">數據驅動</h3>
-                <p className="text-sm text-slate-600">智能分析用戶需求，生成精準指標</p>
+                <p className="text-sm text-slate-600">數據分析用戶需求，生成精準指標</p>
               </CardContent>
             </Card>
           </div>

@@ -40,7 +40,7 @@ const questionData = {
       { id: 'database', label: '數據庫服務', description: 'MySQL、MongoDB、Redis', icon: Database },
       { id: 'microservice', label: '微服務架構', description: '分布式服務、容器化應用', icon: Server },
       { id: 'api', label: 'API 服務', description: 'REST API、GraphQL、gRPC', icon: Settings },
-      { id: 'infrastructure', label: '基礎設施服務', description: '雲服務、CDN、負載均衡', icon: Shield }
+      { id: 'infrastructure', label: '傳統桌機應用', description: '雲服務、CDN、負載均衡', icon: Shield }
     ]
   },
   userConcerns: {
@@ -64,11 +64,11 @@ const questionData = {
       { id: 'reputation_damage', label: '品牌聲譽受損', description: '公司形象和市場信任度下降', icon: AlertTriangle },
       { id: 'operational_cost', label: '運營成本增加', description: '需要額外人力處理問題', icon: Settings },
       { id: 'compliance_risk', label: '合規風險', description: '法規要求、SLA 違約', icon: Shield },
-      { id: 'productivity_loss', label: '生產力下降', description: '內部員工工作效率受影響', icon: TrendingUp }
+      { id: 'productivity_loss', label: '生產力下降', description: '產線工作效率受影響', icon: TrendingUp }
     ]
   },
   technicalRequirements: {
-    title: '您的技術環境和需求是什麼？（可多選）',
+    title: '額外技術環境或需求？（可多選）',
     subtitle: '確保 SLO 指標的監控和實施可行性',
     options: [
       { id: 'cloud_native', label: '雲原生環境', description: 'Kubernetes、Docker、微服務', icon: Server },

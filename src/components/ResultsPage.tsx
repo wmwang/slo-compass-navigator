@@ -79,7 +79,95 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         icon: Shield
       });
     }
+    
+    if (responses.userConcerns.includes('availability')) {
+      recommendations.push({
+        name: '錯誤率 (Error Rate)',
+        description: '衡量服務器端錯誤 (5xx) 的頻率，是衡量服務內部健康狀況的直接指標。',
+        metric: '5xx 錯誤數 / 總請求數',
+        target: '< 0.1%',
+        priority: 'high',
+        icon: TrendingUp
+      });
+    }
 
+    if (responses.monitoringCapability.includes('ops')) {
+      recommendations.push({
+        name: '系統飽和度 (Saturation)',
+        description: '評估系統核心資源 (如 CPU、內存) 的使用率，作為性能瓶頸的預警信號。',
+        metric: 'CPU 使用率的 95th percentile',
+        target: '< 80%',
+        priority: 'medium',
+        icon: TrendingUp
+      });
+    }
+    
+    if (responses.monitoringCapability.includes('sre')) {
+      recommendations.push({
+        name: '快取命中率 (Cache Hit Rate)',
+        description: '對於使用快取的服務，衡量請求成功從快取中獲取數據的比例，直接影響響應時間和後端負載。',
+        metric: '快取命中數 / (命中數 + 錯失數)',
+        target: '> 95%',
+        priority: 'medium',
+        icon: TrendingUp
+      });
+    }
+
+    if (responses.monitoringCapability.includes('end_user')) {
+      recommendations.push({
+        name: '關鍵流程成功率 (Journey Success)',
+        description: '衡量用戶完成一項核心業務流程 (如註冊、下單、支付) 的比例。',
+        metric: '成功完成流程的會話數 / 啟動流程的會話數',
+        target: '> 99%',
+        priority: 'high',
+        icon: TrendingUp
+      });
+    }
+    
+    if (responses.monitoringCapability.includes('end_user')) {
+      recommendations.push({
+        name: '數據新鮮度 (Freshness)',
+        description: '確保用戶獲取的數據是最新的，適用於新聞、儀表板、社交媒體等對時效性敏感的服務。',
+        metric: '(當前時間 - 數據最後更新時間戳)',
+        target: '< 5 分鐘',
+        priority: 'medium',
+        icon: TrendingUp
+      });
+    }
+
+    if (responses.monitoringCapability.includes('developer')) {
+      recommendations.push({
+        name: '任務處理成功率 (Job Success Rate)',
+        description: '衡量異步任務或批次作業成功完成的比例，確保後端處理的可靠性。',
+        metric: '成功完成的任務數 / 總任務數',
+        target: '> 99.9%',
+        priority: 'high',
+        icon: TrendingUp
+      });
+    }
+
+    if (responses.monitoringCapability.includes('developer')) {
+      recommendations.push({
+        name: '數據處理延遲 (Processing Latency)',
+        description: '衡量數據從進入管道到處理完成所需的總時間。',
+        metric: '95th percentile of (處理完成時間 - 事件生成時間)',
+        target: '< 10 分鐘',
+        priority: 'medium',
+        icon: TrendingUp
+      });
+    }
+
+    if (responses.monitoringCapability.includes('developer')) {
+      recommendations.push({
+        name: '隊列延遲 (Queue Latency)',
+        description: '衡量任務在隊列中等待被處理的時間，過長表示消費者處理能力不足。。',
+        metric: '90th percentile of (任務開始處理時間 - 任務入隊時間)',
+        target: '< 30 秒',
+        priority: 'medium',
+        icon: TrendingUp
+      });
+    }
+    
     return recommendations;
   };
 
