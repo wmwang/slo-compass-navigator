@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Target, ArrowRight, Building2, Shield, BarChart3 } from 'lucide-react';
-import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import AppSidebar from './AppSidebar';
 import QuestionnaireStep from './QuestionnaireStep';
 import ResultsPage from './ResultsPage';
@@ -120,7 +120,7 @@ const SLONavigator = () => {
     return (
       <div className="min-h-screen flex w-full">
         <AppSidebar currentStep={5} onYouTubeClick={handleYouTubeClick} />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <div className="p-4">
             <div className="flex items-center gap-2 mb-4">
               <SidebarTrigger />
@@ -137,7 +137,7 @@ const SLONavigator = () => {
     return (
       <div className="min-h-screen flex w-full">
         <AppSidebar currentStep={currentStep} onStepClick={handleStepClick} onYouTubeClick={handleYouTubeClick} />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <div className="p-4 h-screen flex flex-col">
             <div className="flex items-center gap-2 mb-4">
               <SidebarTrigger />
@@ -169,7 +169,7 @@ const SLONavigator = () => {
   return (
     <div className="min-h-screen flex w-full">
       <AppSidebar currentStep={currentStep} onStepClick={handleStepClick} onYouTubeClick={handleYouTubeClick} />
-      <SidebarInset>
+      <SidebarInset className="flex-1">
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
           <div className="container mx-auto px-4 py-8">
             {/* Header with Sidebar Trigger */}
