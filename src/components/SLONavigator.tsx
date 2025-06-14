@@ -20,6 +20,7 @@ const SLONavigator = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Responses>({});
   const [showResults, setShowResults] = useState(false);
+  const [showYouTube, setShowYouTube] = useState(false);
 
   // SLO 開發週期階段定義
   const sloPhases = [
@@ -75,6 +76,7 @@ const SLONavigator = () => {
     setCurrentStep(0);
     setAnswers({});
     setShowResults(false);
+    setShowYouTube(false);
   };
 
   const convertAnswersToResponses = () => {
@@ -99,15 +101,25 @@ const SLONavigator = () => {
   };
 
   const handleStepClick = (step: number) => {
-    if (!showResults) {
+    if (!showResults && !showYouTube) {
       setCurrentStep(step);
     }
+  };
+
+  const handleYouTubeClick = () => {
+    setShowYouTube(true);
+    setShowResults(false);
+  };
+
+  const handleBackToNavigator = () => {
+    setShowYouTube(false);
+    setShowResults(false);
   };
 
   if (showResults) {
     return (
       <div className="min-h-screen flex w-full">
-        <AppSidebar currentStep={5} />
+        <AppSidebar currentStep={5} onYouTubeClick={handleYouTubeClick} />
         <SidebarInset>
           <div className="p-4">
             <div className="flex items-center gap-2 mb-4">
@@ -121,9 +133,42 @@ const SLONavigator = () => {
     );
   }
 
+  if (showYouTube) {
+    return (
+      <div className="min-h-screen flex w-full">
+        <AppSidebar currentStep={currentStep} onStepClick={handleStepClick} onYouTubeClick={handleYouTubeClick} />
+        <SidebarInset>
+          <div className="p-4 h-screen flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <SidebarTrigger />
+              <h1 className="text-xl font-semibold">YouTube 資源</h1>
+              <Button 
+                variant="outline" 
+                onClick={handleBackToNavigator}
+                className="ml-auto"
+              >
+                返回導航
+              </Button>
+            </div>
+            <div className="flex-1 border rounded-lg overflow-hidden">
+              <iframe
+                src="https://www.youtube.com/embed/tEylFyxbDLE"
+                title="SLO YouTube Resource"
+                className="w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </SidebarInset>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex w-full">
-      <AppSidebar currentStep={currentStep} onStepClick={handleStepClick} />
+      <AppSidebar currentStep={currentStep} onStepClick={handleStepClick} onYouTubeClick={handleYouTubeClick} />
       <SidebarInset>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
           <div className="container mx-auto px-4 py-8">

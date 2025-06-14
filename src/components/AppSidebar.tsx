@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Sidebar,
@@ -13,14 +12,15 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Target, Users, Compass, Route, Settings, CheckCircle } from "lucide-react";
+import { Target, Users, Compass, Route, Settings, CheckCircle, Youtube } from "lucide-react";
 
 interface AppSidebarProps {
   currentStep: number;
   onStepClick?: (step: number) => void;
+  onYouTubeClick?: () => void;
 }
 
-const AppSidebar = ({ currentStep, onStepClick }: AppSidebarProps) => {
+const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProps) => {
   const sloSteps = [
     {
       id: 0,
@@ -145,13 +145,31 @@ const AppSidebar = ({ currentStep, onStepClick }: AppSidebarProps) => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* 未來擴充區域 */}
         <SidebarGroup className="mt-6">
           <SidebarGroupLabel className="text-slate-700 font-semibold mb-3">
             工具與資源
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center">
+            <SidebarMenu className="space-y-2">
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={onYouTubeClick}
+                  className="w-full p-4 border border-slate-200 rounded-lg transition-all duration-200 hover:shadow-md hover:bg-red-50 hover:border-red-200"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-shrink-0">
+                      <Youtube className="h-5 w-5 text-red-600" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="font-medium text-sm text-slate-800">YouTube 資源</span>
+                      <p className="text-xs text-slate-600 mt-1">SLO 相關教學影片</p>
+                    </div>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+            
+            <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center mt-4">
               <p className="text-sm text-slate-500">未來功能擴充區域</p>
             </div>
           </SidebarGroupContent>
