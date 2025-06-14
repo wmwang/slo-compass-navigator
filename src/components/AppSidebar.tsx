@@ -74,11 +74,11 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
     if (isCollapsed) {
       switch (status) {
         case "completed":
-          return "text-green-700 bg-green-50";
+          return "text-green-700 bg-green-50 hover:bg-green-100";
         case "current":
-          return "text-blue-700 bg-blue-50 ring-2 ring-blue-300";
+          return "text-blue-700 bg-blue-50 ring-2 ring-blue-300 hover:bg-blue-100";
         default:
-          return "text-slate-500 bg-slate-50";
+          return "text-slate-500 bg-slate-50 hover:bg-slate-100";
       }
     }
     
@@ -93,8 +93,8 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r-2 border-slate-100">
-      <SidebarHeader className={`${isCollapsed ? 'p-2' : 'p-6'} border-b border-slate-100`}>
+    <Sidebar collapsible="icon" className={`border-r-2 border-slate-100 ${isCollapsed ? 'z-50' : ''}`}>
+      <SidebarHeader className={`${isCollapsed ? 'p-3' : 'p-6'} border-b border-slate-100`}>
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
             <Target className="h-6 w-6" />
@@ -108,7 +108,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="p-4">
+      <SidebarContent className={isCollapsed ? "p-2" : "p-4"}>
         <SidebarGroup>
           {!isCollapsed && (
             <SidebarGroupLabel className="text-slate-700 font-semibold mb-3">
@@ -116,7 +116,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
               {sloSteps.map((step) => {
                 const status = getStepStatus(step.id);
                 const Icon = step.icon;
@@ -127,7 +127,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
                       onClick={() => onStepClick?.(step.id)}
                       tooltip={isCollapsed ? `${step.title} (${step.id + 1}/5)` : undefined}
                       className={`
-                        ${isCollapsed ? 'h-10 w-10 p-0 justify-center' : 'w-full p-4 border rounded-lg'} 
+                        ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border rounded-lg'} 
                         transition-all duration-200 hover:shadow-md
                         ${getStepStyles(status)}
                         ${status === "current" && !isCollapsed ? "ring-2 ring-blue-300" : ""}
@@ -136,9 +136,9 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
                       {isCollapsed ? (
                         <div className="flex-shrink-0">
                           {status === "completed" ? (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <CheckCircle className="h-6 w-6 text-green-600" />
                           ) : (
-                            <Icon className="h-5 w-5" />
+                            <Icon className="h-6 w-6" />
                           )}
                         </div>
                       ) : (
@@ -184,18 +184,18 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={onYouTubeClick}
                   tooltip={isCollapsed ? "YouTube 資源" : undefined}
                   className={`
-                    ${isCollapsed ? 'h-10 w-10 p-0 justify-center' : 'w-full p-4 border border-slate-200 rounded-lg'} 
+                    ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border border-slate-200 rounded-lg'} 
                     transition-all duration-200 hover:shadow-md hover:bg-red-50 hover:border-red-200
                   `}
                 >
                   {isCollapsed ? (
-                    <Youtube className="h-5 w-5 text-red-600" />
+                    <Youtube className="h-6 w-6 text-red-600" />
                   ) : (
                     <div className="flex items-center gap-3 w-full">
                       <div className="flex-shrink-0">
@@ -220,7 +220,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className={`${isCollapsed ? 'p-2' : 'p-4'} border-t border-slate-100`}>
+      <SidebarFooter className={`${isCollapsed ? 'p-3' : 'p-4'} border-t border-slate-100`}>
         {!isCollapsed && (
           <div className="text-center">
             <p className="text-xs text-slate-500">基於 Google SLO 白皮書</p>
