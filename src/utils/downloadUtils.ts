@@ -221,105 +221,226 @@ const getErrorQuery = (slo: any) => {
   }
 };
 
+// 輔助函數：自動換行處理
+const splitText = (text: string, maxWidth: number, doc: jsPDF): string[] => {
+  const lines = [];
+  const words = text.split(' ');
+  let currentLine = '';
+  
+  for (const word of words) {
+    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+    const textWidth = doc.getTextWidth(testLine);
+    
+    if (textWidth > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  
+  return lines;
+};
+
+// 檢查是否需要新頁面
+const checkNewPage = (doc: jsPDF, yPosition: number, neededHeight: number = 30): number => {
+  const pageHeight = doc.internal.pageSize.height;
+  if (yPosition + neededHeight > pageHeight - 20) {
+    doc.addPage();
+    return 20;
+  }
+  return yPosition;
+};
+
 export const generatePDF = (responses: any, sliRecommendations: any[], sloTargets: any[], sreRecommendations: any[]) => {
   const doc = new jsPDF();
   let yPosition = 20;
-  const lineHeight = 7;
-  const pageHeight = doc.internal.pageSize.height;
+  const lineHeight = 8;
+  const maxWidth = 170; // 最大文字寬度
   
-  // 設置中文字體（使用內建字體）
+  // 設置字體
   doc.setFont('helvetica');
   
   // 標題
   doc.setFontSize(20);
-  doc.text('SLO 策略報告', 20, yPosition);
+  doc.text('SLO Strategy Report', 20, yPosition);
   yPosition += lineHeight * 2;
   
   // 服務概覽
+  yPosition = checkNewPage(doc, yPosition, 50);
   doc.setFontSize(16);
-  doc.text('服務概覽', 20, yPosition);
+  doc.text('Service Overview', 20, yPosition);
   yPosition += lineHeight;
   
   doc.setFontSize(12);
   const serviceOverview = [
-    `服務類型: ${responses.serviceType?.join(', ') || 'N/A'}`,
-    `用戶關注點: ${responses.userConcerns?.join(', ') || 'N/A'}`,
-    `業務影響: ${responses.businessImpact?.join(', ') || 'N/A'}`,
-    `技術需求: ${responses.technicalRequirements?.join(', ') || 'N/A'}`,
-    `監控能力: ${responses.monitoringCapability?.join(', ') || 'N/A'}`
+    `Service Type: ${responses.serviceType?.join(', ') || 'N/A'}`,
+    `User Concerns: ${responses.userConcerns?.join(', ') || 'N/A'}`,
+    `Business Impact: ${responses.businessImpact?.join(', ') || 'N/A'}`,
+    `Technical Requirements: ${responses.technicalRequirements?.join(', ') || 'N/A'}`,
+    `Monitoring Capability: ${responses.monitoringCapability?.join(', ') || 'N/A'}`
   ];
   
   serviceOverview.forEach(text => {
-    if (yPosition > pageHeight - 20) {
-      doc.addPage();
-      yPosition = 20;
-    }
-    doc.text(text, 20, yPosition);
-    yPosition += lineHeight;
+    const lines = splitText(text, maxWidth, doc);
+    lines.forEach(line => {
+      yPosition = checkNewPage(doc, yPosition);
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
   });
   
   yPosition += lineHeight;
   
   // SLI 指標建議
+  yPosition = checkNewPage(doc, yPosition, 40);
   doc.setFontSize(16);
-  if (yPosition > pageHeight - 40) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  doc.text('SLI 指標建議', 20, yPosition);
-  yPosition += lineHeight;
+  doc.text('SLI Recommendations', 20, yPosition);
+  yPosition += lineHeight * 1.5;
   
-  doc.setFontSize(12);
   sliRecommendations.forEach((sli, index) => {
-    if (yPosition > pageHeight - 60) {
-      doc.addPage();
-      yPosition = 20;
-    }
+    yPosition = checkNewPage(doc, yPosition, 60);
     
     doc.setFontSize(14);
     doc.text(`${index + 1}. ${sli.name}`, 20, yPosition);
     yPosition += lineHeight;
     
     doc.setFontSize(12);
-    doc.text(`描述: ${sli.description}`, 20, yPosition);
+    
+    // 描述
+    const descLines = splitText(`Description: ${sli.description}`, maxWidth, doc);
+    descLines.forEach(line => {
+      yPosition = checkNewPage(doc, yPosition);
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    // 指標
+    const metricLines = splitText(`Metric: ${sli.metric}`, maxWidth, doc);
+    metricLines.forEach(line => {
+      yPosition = checkNewPage(doc, yPosition);
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    // 目標和優先級
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Target: ${sli.target}`, 20, yPosition);
     yPosition += lineHeight;
-    doc.text(`指標: ${sli.metric}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`目標: ${sli.target}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`優先級: ${sli.priority === 'high' ? '高' : '中'}`, 20, yPosition);
+    
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Priority: ${sli.priority === 'high' ? 'High' : 'Medium'}`, 20, yPosition);
     yPosition += lineHeight * 1.5;
   });
   
   // SLO 目標設定
-  if (yPosition > pageHeight - 40) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  
+  yPosition = checkNewPage(doc, yPosition, 40);
   doc.setFontSize(16);
-  doc.text('SLO 目標設定', 20, yPosition);
-  yPosition += lineHeight;
+  doc.text('SLO Targets', 20, yPosition);
+  yPosition += lineHeight * 1.5;
   
-  doc.setFontSize(12);
   sloTargets.forEach((slo, index) => {
-    if (yPosition > pageHeight - 40) {
-      doc.addPage();
-      yPosition = 20;
-    }
+    yPosition = checkNewPage(doc, yPosition, 50);
     
     doc.setFontSize(14);
-    doc.text(`${index + 1}. ${slo.name}`, 20, yPosition);
-    yPosition += lineHeight;
+    const titleLines = splitText(`${index + 1}. ${slo.name}`, maxWidth, doc);
+    titleLines.forEach(line => {
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
     
     doc.setFontSize(12);
-    doc.text(`目標值: ${slo.sloTarget}`, 20, yPosition);
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Target: ${slo.sloTarget}`, 20, yPosition);
     yPosition += lineHeight;
-    doc.text(`錯誤預算: ${slo.errorBudget}`, 20, yPosition);
+    
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Error Budget: ${slo.errorBudget}`, 20, yPosition);
     yPosition += lineHeight;
-    doc.text(`測量窗口: ${slo.measurementWindow}`, 20, yPosition);
+    
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Measurement Window: ${slo.measurementWindow}`, 20, yPosition);
     yPosition += lineHeight * 1.5;
   });
+  
+  // 實施建議
+  yPosition = checkNewPage(doc, yPosition, 40);
+  doc.setFontSize(16);
+  doc.text('Implementation Recommendations', 20, yPosition);
+  yPosition += lineHeight * 1.5;
+  
+  sreRecommendations.forEach((rec, index) => {
+    yPosition = checkNewPage(doc, yPosition, 60);
+    
+    doc.setFontSize(14);
+    const titleLines = splitText(`${index + 1}. ${rec.title}`, maxWidth, doc);
+    titleLines.forEach(line => {
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    doc.setFontSize(12);
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Category: ${rec.category}`, 20, yPosition);
+    yPosition += lineHeight;
+    
+    const descLines = splitText(`Description: ${rec.description}`, maxWidth, doc);
+    descLines.forEach(line => {
+      yPosition = checkNewPage(doc, yPosition);
+      doc.text(line, 20, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Priority: ${rec.priority === 'high' ? 'High' : 'Medium'}`, 20, yPosition);
+    yPosition += lineHeight;
+    
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(`Timeline: ${rec.timeline}`, 20, yPosition);
+    yPosition += lineHeight * 1.5;
+  });
+  
+  // Prometheus 配置
+  yPosition = checkNewPage(doc, yPosition, 40);
+  doc.setFontSize(16);
+  doc.text('Prometheus Configuration', 20, yPosition);
+  yPosition += lineHeight * 1.5;
+  
+  doc.setFontSize(12);
+  yPosition = checkNewPage(doc, yPosition);
+  doc.text('OpenSLO and Sloth configurations are available in the', 20, yPosition);
+  yPosition += lineHeight;
+  doc.text('YAML export section of the web interface.', 20, yPosition);
+  yPosition += lineHeight * 2;
+  
+  // 後續步驟
+  yPosition = checkNewPage(doc, yPosition, 60);
+  doc.setFontSize(16);
+  doc.text('Next Steps', 20, yPosition);
+  yPosition += lineHeight * 1.5;
+  
+  doc.setFontSize(12);
+  const nextSteps = [
+    '1. Implement high-priority monitoring and alerting',
+    '2. Establish baseline measurements (2-4 weeks)',
+    '3. Set initial SLO targets and error budget tracking',
+    '4. Create regular SLO review meetings',
+    '5. Adjust SLO targets based on actual performance'
+  ];
+  
+  nextSteps.forEach(step => {
+    yPosition = checkNewPage(doc, yPosition);
+    doc.text(step, 20, yPosition);
+    yPosition += lineHeight;
+  });
+  
+  yPosition += lineHeight;
+  yPosition = checkNewPage(doc, yPosition);
+  doc.text(`Report generated: ${new Date().toLocaleString()}`, 20, yPosition);
   
   return doc;
 };
