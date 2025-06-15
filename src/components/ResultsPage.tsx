@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RotateCcw, Target, TrendingUp, AlertCircle, CheckCircle2, Clock, Shield, BarChart3, Settings, Eye, Users, Copy, Download, Code } from 'lucide-react';
+import { RotateCcw, Target, TrendingUp, AlertCircle, CheckCircle2, Clock, Shield, BarChart3, Settings, Eye, Users, Copy, Download, Code, FileText } from 'lucide-react';
+import { generateMarkdown, generatePDF, downloadMarkdown, downloadPDF } from '@/utils/downloadUtils';
 
 interface ResultsPageProps {
   responses: {
@@ -382,6 +383,17 @@ ${sloTargets.map((slo, index) => {
     URL.revokeObjectURL(url);
   };
 
+  // 新增下載報告的功能
+  const handleDownloadMarkdown = () => {
+    const content = generateMarkdown(responses, sliRecommendations, sloTargets, sreRecommendations);
+    downloadMarkdown(content, `slo-report-${new Date().toISOString().split('T')[0]}.md`);
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = generatePDF(responses, sliRecommendations, sloTargets, sreRecommendations);
+    downloadPDF(doc, `slo-report-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   const sliRecommendations = generateSLIRecommendations();
   const sloTargets = generateSLOTargets();
   const sreRecommendations = generateSRERecommendations();
@@ -400,10 +412,20 @@ ${sloTargets.map((slo, index) => {
           <p className="text-gray-600 mb-6">
             基於您的選擇，我們為您制定了個性化的 SLO 實施方案
           </p>
-          <Button onClick={onRestart} variant="outline" className="mb-6">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            重新評估
-          </Button>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Button onClick={onRestart} variant="outline">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              重新評估
+            </Button>
+            <Button onClick={handleDownloadMarkdown} variant="outline">
+              <FileText className="w-4 h-4 mr-2" />
+              下載 MD
+            </Button>
+            <Button onClick={handleDownloadPDF} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              下載 PDF
+            </Button>
+          </div>
         </div>
 
         {/* 結果概覽 */}
