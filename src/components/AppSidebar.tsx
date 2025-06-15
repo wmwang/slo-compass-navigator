@@ -43,7 +43,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
   const sloSteps = [
     {
       id: 0,
-      title: "識別利害關係人",
+      title: "識別利害關係",
       phase: "Identify Stakeholders",
       description: "確定用戶身分",
       icon: Users,
@@ -122,7 +122,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
         </div>
       </SidebarHeader>
 
-      <SidebarContent className={isCollapsed ? "p-2" : "p-4"}>
+      <SidebarContent className={isCollapsed ? "p-0" : "p-4"}>
         {/* SLO Steps Group */}
         <Collapsible 
           open={openGroups.sloSteps} 
@@ -140,7 +140,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
             )}
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
+                <SidebarMenu className={isCollapsed ? "space-y-2   px-0" : "space-y-2"}>
                   {sloSteps.map((step) => {
                     const status = getStepStatus(step.id);
                     const Icon = step.icon;
@@ -151,7 +151,7 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
                           onClick={() => onStepClick?.(step.id)}
                           tooltip={isCollapsed ? `${step.title} (${step.id + 1}/5)` : undefined}
                           className={`
-                            ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border rounded-lg'} 
+                            ${isCollapsed ? 'h-12 w-10 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border rounded-lg'} 
                             transition-all duration-200 hover:shadow-md
                             ${getStepStyles(status)}
                             ${status === "current" && !isCollapsed ? "ring-2 ring-blue-300" : ""}
@@ -188,8 +188,8 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
                                     {step.id + 1}/5
                                   </Badge>
                                 </div>
-                                <p className="text-xs opacity-80 mb-1">{step.phase}</p>
-                                <p className="text-xs opacity-70">{step.description}</p>
+                                {/* <p className="text-xs opacity-80 mb-1">{step.phase}</p>
+                                <p className="text-xs opacity-70">{step.description}</p> */}
                               </div>
                             </div>
                           )}
@@ -220,13 +220,13 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
             )}
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
+                <SidebarMenu className={isCollapsed ? "space-y-2 px-0" : "space-y-2"}>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={onYouTubeClick}
                       tooltip={isCollapsed ? "YouTube 資源" : undefined}
                       className={`
-                        ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border border-slate-200 rounded-lg'} 
+                        ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'h-auto w-full p-4 border border-slate-200 rounded-lg'} 
                         transition-all duration-200 hover:shadow-md hover:bg-red-50 hover:border-red-200
                       `}
                     >
