@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Target, Users, Compass, Route, Settings, CheckCircle, Youtube } from "lucide-react";
+import { Target, Users, Compass, Route, Settings, CheckCircle, Youtube, ChevronDown } from "lucide-react";
 
 interface AppSidebarProps {
   currentStep: number;
@@ -25,6 +26,19 @@ interface AppSidebarProps {
 const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProps) => {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  
+  // State for managing which groups are open
+  const [openGroups, setOpenGroups] = useState({
+    sloSteps: true,
+    tools: true
+  });
+
+  const toggleGroup = (groupName: 'sloSteps' | 'tools') => {
+    setOpenGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   const sloSteps = [
     {
@@ -109,115 +123,139 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
       </SidebarHeader>
 
       <SidebarContent className={isCollapsed ? "p-2" : "p-4"}>
-        <SidebarGroup>
-          {!isCollapsed && (
-            <SidebarGroupLabel className="text-slate-700 font-semibold mb-3">
-              SLO 開發週期步驟
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
-              {sloSteps.map((step) => {
-                const status = getStepStatus(step.id);
-                const Icon = step.icon;
-                
-                return (
-                  <SidebarMenuItem key={step.id}>
+        {/* SLO Steps Group */}
+        <Collapsible 
+          open={openGroups.sloSteps} 
+          onOpenChange={() => toggleGroup('sloSteps')}
+          className="w-full"
+        >
+          <SidebarGroup>
+            {!isCollapsed && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="text-slate-700 font-semibold mb-3 cursor-pointer hover:text-slate-900 flex items-center justify-between group">
+                  SLO 開發週期步驟
+                  <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${openGroups.sloSteps ? 'rotate-180' : ''}`} />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
+                  {sloSteps.map((step) => {
+                    const status = getStepStatus(step.id);
+                    const Icon = step.icon;
+                    
+                    return (
+                      <SidebarMenuItem key={step.id}>
+                        <SidebarMenuButton
+                          onClick={() => onStepClick?.(step.id)}
+                          tooltip={isCollapsed ? `${step.title} (${step.id + 1}/5)` : undefined}
+                          className={`
+                            ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border rounded-lg'} 
+                            transition-all duration-200 hover:shadow-md
+                            ${getStepStyles(status)}
+                            ${status === "current" && !isCollapsed ? "ring-2 ring-blue-300" : ""}
+                          `}
+                        >
+                          {isCollapsed ? (
+                            <div className="flex-shrink-0">
+                              {status === "completed" ? (
+                                <CheckCircle className="h-6 w-6 text-green-600" />
+                              ) : (
+                                <Icon className="h-6 w-6" />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-start gap-3 w-full">
+                              <div className="flex-shrink-0 mt-1">
+                                {status === "completed" ? (
+                                  <CheckCircle className="h-5 w-5 text-green-600" />
+                                ) : (
+                                  <Icon className="h-5 w-5" />
+                                )}
+                              </div>
+                              <div className="flex-1 text-left">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-sm">{step.title}</span>
+                                  <Badge 
+                                    variant="secondary" 
+                                    className={`text-xs px-2 py-0.5 ${
+                                      status === "current" ? "bg-blue-200 text-blue-800" :
+                                      status === "completed" ? "bg-green-200 text-green-800" :
+                                      "bg-slate-200 text-slate-600"
+                                    }`}
+                                  >
+                                    {step.id + 1}/5
+                                  </Badge>
+                                </div>
+                                <p className="text-xs opacity-80 mb-1">{step.phase}</p>
+                                <p className="text-xs opacity-70">{step.description}</p>
+                              </div>
+                            </div>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        {/* Tools and Resources Group */}
+        <Collapsible 
+          open={openGroups.tools} 
+          onOpenChange={() => toggleGroup('tools')}
+          className="w-full mt-6"
+        >
+          <SidebarGroup>
+            {!isCollapsed && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="text-slate-700 font-semibold mb-3 cursor-pointer hover:text-slate-900 flex items-center justify-between group">
+                  工具與資源
+                  <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${openGroups.tools ? 'rotate-180' : ''}`} />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
+                  <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => onStepClick?.(step.id)}
-                      tooltip={isCollapsed ? `${step.title} (${step.id + 1}/5)` : undefined}
+                      onClick={onYouTubeClick}
+                      tooltip={isCollapsed ? "YouTube 資源" : undefined}
                       className={`
-                        ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border rounded-lg'} 
-                        transition-all duration-200 hover:shadow-md
-                        ${getStepStyles(status)}
-                        ${status === "current" && !isCollapsed ? "ring-2 ring-blue-300" : ""}
+                        ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border border-slate-200 rounded-lg'} 
+                        transition-all duration-200 hover:shadow-md hover:bg-red-50 hover:border-red-200
                       `}
                     >
                       {isCollapsed ? (
-                        <div className="flex-shrink-0">
-                          {status === "completed" ? (
-                            <CheckCircle className="h-6 w-6 text-green-600" />
-                          ) : (
-                            <Icon className="h-6 w-6" />
-                          )}
-                        </div>
+                        <Youtube className="h-6 w-6 text-red-600" />
                       ) : (
-                        <div className="flex items-start gap-3 w-full">
-                          <div className="flex-shrink-0 mt-1">
-                            {status === "completed" ? (
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                            ) : (
-                              <Icon className="h-5 w-5" />
-                            )}
+                        <div className="flex items-center gap-3 w-full">
+                          <div className="flex-shrink-0">
+                            <Youtube className="h-5 w-5 text-red-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">{step.title}</span>
-                              <Badge 
-                                variant="secondary" 
-                                className={`text-xs px-2 py-0.5 ${
-                                  status === "current" ? "bg-blue-200 text-blue-800" :
-                                  status === "completed" ? "bg-green-200 text-green-800" :
-                                  "bg-slate-200 text-slate-600"
-                                }`}
-                              >
-                                {step.id + 1}/5
-                              </Badge>
-                            </div>
-                            <p className="text-xs opacity-80 mb-1">{step.phase}</p>
-                            <p className="text-xs opacity-70">{step.description}</p>
+                            <span className="font-medium text-sm text-slate-800">YouTube 資源</span>
+                            <p className="text-xs text-slate-600 mt-1">SLO 相關教學影片</p>
                           </div>
                         </div>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-6">
-          {!isCollapsed && (
-            <SidebarGroupLabel className="text-slate-700 font-semibold mb-3">
-              工具與資源
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu className={isCollapsed ? "space-y-2 px-1" : "space-y-2"}>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={onYouTubeClick}
-                  tooltip={isCollapsed ? "YouTube 資源" : undefined}
-                  className={`
-                    ${isCollapsed ? 'h-12 w-12 p-0 justify-center mx-auto rounded-xl shadow-sm' : 'w-full p-4 border border-slate-200 rounded-lg'} 
-                    transition-all duration-200 hover:shadow-md hover:bg-red-50 hover:border-red-200
-                  `}
-                >
-                  {isCollapsed ? (
-                    <Youtube className="h-6 w-6 text-red-600" />
-                  ) : (
-                    <div className="flex items-center gap-3 w-full">
-                      <div className="flex-shrink-0">
-                        <Youtube className="h-5 w-5 text-red-600" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <span className="font-medium text-sm text-slate-800">YouTube 資源</span>
-                        <p className="text-xs text-slate-600 mt-1">SLO 相關教學影片</p>
-                      </div>
-                    </div>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-            
-            {!isCollapsed && (
-              <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center mt-4">
-                <p className="text-sm text-slate-500">未來功能擴充區域</p>
-              </div>
-            )}
-          </SidebarGroupContent>
-        </SidebarGroup>
+                </SidebarMenu>
+                
+                {!isCollapsed && (
+                  <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center mt-4">
+                    <p className="text-sm text-slate-500">未來功能擴充區域</p>
+                  </div>
+                )}
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
 
       <SidebarFooter className={`${isCollapsed ? 'p-3' : 'p-4'} border-t border-slate-100`}>
