@@ -41,7 +41,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '響應時間 (Latency)',
         description: '請求處理的響應時間',
         metric: '95th percentile 響應時間',
-        target: '< 200ms',
+        target: '> 99.9%',
         priority: 'high',
         icon: Clock
       });
@@ -63,7 +63,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '吞吐量 (Throughput)',
         description: '單位時間內處理的請求數',
         metric: '每秒處理請求數 (RPS)',
-        target: '> 1000 RPS',
+        target: '> 99.9%',
         priority: 'medium',
         icon: TrendingUp
       });
@@ -75,7 +75,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '數據持久性 (Durability)',
         description: '數據不丟失的保證',
         metric: '數據備份成功率',
-        target: '100%',
+        target: '99%',
         priority: 'high',
         icon: Shield
       });
@@ -130,7 +130,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '數據新鮮度 (Freshness)',
         description: '確保用戶獲取的數據是最新的，適用於新聞、儀表板、社交媒體等對時效性敏感的服務。',
         metric: '(當前時間 - 數據最後更新時間戳)',
-        target: '< 5 分鐘',
+        target: '> 99.9%',
         priority: 'medium',
         icon: TrendingUp
       });
@@ -152,7 +152,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '數據處理延遲 (Processing Latency)',
         description: '衡量數據從進入管道到處理完成所需的總時間。',
         metric: '95th percentile of (處理完成時間 - 事件生成時間)',
-        target: '< 10 分鐘',
+        target: '> 99.9%',
         priority: 'medium',
         icon: TrendingUp
       });
@@ -163,7 +163,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         name: '隊列延遲 (Queue Latency)',
         description: '衡量任務在隊列中等待被處理的時間，過長表示消費者處理能力不足。。',
         metric: '90th percentile of (任務開始處理時間 - 任務入隊時間)',
-        target: '< 30 秒',
+        target: '> 99.9%',
         priority: 'medium',
         icon: TrendingUp
       });
@@ -190,7 +190,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
       return {
         ...sli,
         sloTarget: adjustedTarget,
-        errorBudget: sli.name.includes('可用性') ? '0.05%' : 'N/A',
+        errorBudget: `${(100 - parseFloat(adjustedTarget.replace(/[%<>]/g, ''))).toFixed(2)}%` ,
         measurementWindow: '30天'
       };
     });
@@ -245,7 +245,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
     const sloTargets = generateSLOTargets();
     
     const yamlContent = sloTargets.map((slo, index) => {
-      const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '');
       const serviceName = responses.serviceType[0] || 'service';
       
       return `apiVersion: openslo/v1
@@ -302,7 +302,7 @@ labels:
   environment: "production"
 slos:
 ${sloTargets.map((slo, index) => {
-  const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const sloName = slo.name.toLowerCase().replace(/[^a-z0-9]/g, '');
   const objective = parseFloat(slo.sloTarget.replace('%', '')) / 100;
   
   return `  - name: "${sloName}"
@@ -339,18 +339,28 @@ ${sloTargets.map((slo, index) => {
       return 'sum(rate(http_requests_total{code!~"5.."}[5m]))';
     } else if (slo.name.includes('響應時間')) {
       return 'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))';
-    } else if (slo.name.includes('數據準確性')) {
-      return 'sum(rate(data_validation_success_total[5m]))';
-    } else if (slo.name.includes('吞吐量')) {
-      return 'sum(rate(http_requests_total[5m]))';
     } else {
       return 'sum(rate(service_requests_success_total[5m]))';
     }
   };
 
   const getTotalQuery = (slo: any) => {
-    if (slo.name.includes('響應時間')) {
+    if (slo.name.includes('可用性')) {
+      return 'sum(rate(http_requests_total[5m]))';
+    } else if (slo.name.includes('響應時間')) {
       return 'sum(rate(http_request_duration_seconds_count[5m]))';
+    }else if (slo.name.includes('錯誤率')) {
+      return 'sum(rate(istio_requests_total[5m]))';
+    } else if (slo.name.includes('錯誤率')) {
+      return 'sum(rate(istio_requests_total[5m]))';
+    } else if (slo.name.includes('飽和度')) {
+      return 'sum(rate(kube_node_status_allocatable[5m]))';
+    } else if (slo.name.includes('關鍵流程成功率')) {
+      return 'sum(rate(business_transaction_total,[5m]))';
+    } else if (slo.name.includes('任務處理成功率')) {
+      return 'sum(rate(scheduled_task_execution_total[5m]))';
+    } else if (slo.name.includes('請求重試率')) {
+      return 'sum(rate(http_client_requests_total[5m]))';
     } else {
       return 'sum(rate(http_requests_total[5m]))';
     }
@@ -358,9 +368,23 @@ ${sloTargets.map((slo, index) => {
 
   const getErrorQuery = (slo: any) => {
     if (slo.name.includes('可用性')) {
-      return 'sum(rate(http_requests_total{code=~"5.."}[5m]))';
+      return 'sum(rate(http_requests_total{code=~"(5..|429)"}[5m]))';
     } else if (slo.name.includes('響應時間')) {
       return 'sum(rate(http_request_duration_seconds_bucket{le="0.2"}[5m])) / sum(rate(http_request_duration_seconds_count[5m])) < 0.95';
+    } else if (slo.name.includes('數據準確性')) {
+      return 'sum(rate(data_validation_success_total[5m]))';
+    } else if (slo.name.includes('吞吐量')) {
+      return 'sum(rate(http_requests_total[5m]))';
+    } else if (slo.name.includes('錯誤率')) {
+      return 'sum(rate(istio_requests_total{response_code=~"5.."}[5m]))';
+    } else if (slo.name.includes('飽和度')) {
+      return 'sum(rate(kube_node_status_allocatable[5m]))';
+    } else if (slo.name.includes('關鍵流程成功率')) {
+      return 'sum(rate(business_transaction_total{status="success"}[5m]))';
+    } else if (slo.name.includes('任務處理成功率')) {
+      return 'sum(rate(scheduled_task_execution_total{status="success"}[5m]))';
+    } else if (slo.name.includes('請求重試率')) {
+      return 'sum(rate(http_client_requests_total{outcome="CLIENT_ERROR"}[5m]))';
     } else {
       return 'sum(rate(service_requests_error_total[5m]))';
     }

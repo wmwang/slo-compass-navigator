@@ -35,12 +35,13 @@ const questionData = {
     title: '請選擇您的服務類型（可多選）',
     subtitle: '確定服務特性以制定相應的可靠性目標',
     options: [
-      { id: 'web', label: 'Web 應用服務', description: '網站、Web API、前端應用', icon: Globe },
+      { id: 'web', label: '前端應用服務', description: '網站、Web API、前端應用', icon: Globe },
       { id: 'mobile', label: '移動應用服務', description: '手機 App、移動端 API', icon: Smartphone },
       { id: 'database', label: '數據庫服務', description: 'MySQL、MongoDB、Redis', icon: Database },
       { id: 'microservice', label: '微服務架構', description: '分布式服務、容器化應用', icon: Server },
       { id: 'api', label: 'API 服務', description: 'REST API、GraphQL、gRPC', icon: Settings },
-      { id: 'infrastructure', label: '傳統桌機應用', description: '雲服務、CDN、負載均衡', icon: Shield }
+      { id: 'infrastructure', label: '傳統桌機應用', description: '雲服務、CDN、負載均衡', icon: Shield },
+      { id: 'backend', label: '後端服務', description: '雲服務、CDN、負載均衡', icon: Shield }
     ]
   },
   userConcerns: {
