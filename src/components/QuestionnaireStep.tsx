@@ -40,7 +40,7 @@ const questionData = {
       { id: 'database', label: '數據庫服務', description: 'MySQL、MongoDB、Redis', icon: Database },
       { id: 'microservice', label: '微服務架構', description: '分布式服務、容器化應用', icon: Server },
       { id: 'api', label: 'API 服務', description: 'REST API、GraphQL、gRPC', icon: Settings },
-      { id: 'infrastructure', label: '傳統桌機應用', description: '雲服務、CDN、負載均衡', icon: Shield },
+      { id: 'infrastructure', label: '傳統桌機應用', description: 'WINAPI、linux、macOS', icon: Shield },
       { id: 'backend', label: '後端服務', description: '雲服務、CDN、負載均衡', icon: Shield }
     ]
   },
@@ -49,7 +49,7 @@ const questionData = {
     subtitle: '識別關鍵的用戶體驗指標和期望',
     options: [
       { id: 'availability', label: '可用性', description: '服務能正常訪問，不出現宕機', icon: Shield },
-      { id: 'response_time', label: '響應速度', description: '請求處理速度，頁面加載時間', icon: Clock },
+      { id: 'response_time', label: '回應速度', description: '請求處理速度，頁面加載時間', icon: Clock },
       { id: 'data_accuracy', label: '數據準確性', description: '數據的正確性和一致性', icon: BarChart3 },
       { id: 'user_experience', label: '用戶體驗', description: '界面流暢度，功能易用性', icon: Users },
       { id: 'security', label: '安全性', description: '數據安全，隱私保護', icon: Shield },
@@ -60,12 +60,12 @@ const questionData = {
     title: '服務中斷對業務的影響程度？（可多選）',
     subtitle: '評估不同故障情境的業務損失，制定合理的 SLO 目標',
     options: [
+      { id: 'productivity_loss', label: '生產力下降', description: '產線工作效率受影響', icon: TrendingUp },
       { id: 'revenue_loss', label: '直接收入損失', description: '影響銷售、交易、付費用戶', icon: DollarSign },
       { id: 'customer_churn', label: '客戶流失', description: '用戶體驗差導致客戶離開', icon: Users },
       { id: 'reputation_damage', label: '品牌聲譽受損', description: '公司形象和市場信任度下降', icon: AlertTriangle },
       { id: 'operational_cost', label: '運營成本增加', description: '需要額外人力處理問題', icon: Settings },
-      { id: 'compliance_risk', label: '合規風險', description: '法規要求、SLA 違約', icon: Shield },
-      { id: 'productivity_loss', label: '生產力下降', description: '產線工作效率受影響', icon: TrendingUp }
+      { id: 'compliance_risk', label: '法規風險', description: '法規要求、SLA 違約', icon: Shield }
     ]
   },
   technicalRequirements: {

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Target, Users, Compass, Route, Settings, CheckCircle, Youtube, ChevronDown } from "lucide-react";
+import { Target, Users, Compass, Route, Settings, CheckCircle, Youtube, Blocks, Monitor, ChevronDown } from "lucide-react";
 
 interface AppSidebarProps {
   currentStep: number;
@@ -231,11 +231,11 @@ const AppSidebar = ({ currentStep, onStepClick, onYouTubeClick }: AppSidebarProp
                       `}
                     >
                       {isCollapsed ? (
-                        <Youtube className="h-6 w-6 text-red-600" />
+                        <Monitor className="h-6 w-6 text-red-600" />
                       ) : (
                         <div className="flex items-center gap-3 w-full">
                           <div className="flex-shrink-0">
-                            <Youtube className="h-5 w-5 text-red-600" />
+                            <Monitor className="h-5 w-5 text-red-600" />
                           </div>
                           <div className="flex-1 text-left">
                             <span className="font-medium text-sm text-slate-800">YouTube 資源</span>

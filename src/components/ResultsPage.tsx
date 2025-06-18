@@ -76,7 +76,7 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ responses, onRestart }) => {
         description: '數據不丟失的保證',
         metric: '數據備份成功率',
         target: '99%',
-        priority: 'high',
+        priority: 'medium',
         icon: Shield
       });
     }
